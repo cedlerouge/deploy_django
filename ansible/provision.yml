@@ -1,0 +1,63 @@
+---
+- hosts: localhost
+  vars_files:
+    - vars.yml
+  gather_facts: false
+  become: yes
+
+  tasks:
+    - name: Install system packages
+      package: 
+        name: "{{ item }}"
+        state: "present"
+      loop: "{{ system_packages }}"
+
+    - name: Create directory for app
+      file: 
+        path: "{{ install_root }}/{{ item.name }}" 
+        state: "directory"
+      loop: "{{ projects }}"
+
+    - name: create isolated python environment
+      shell: |
+        virtualenv {{ install_root }}/.virtualenv/{{ item.name }}/env
+      loop: "{{ projects }}"
+
+    - name: Ensure a locale exists
+      locale_gen:
+        name: fr_FR.UTF-8
+        state: present
+
+    - name: make sure postgresql server is running
+      service: 
+        name: "postgresql" 
+        state: "started"
+
+    - name: create database
+      become_user: postgres
+      postgresql_db: 
+        name: "{{ item.db_name }}"
+        encoding: "UTF-8"
+        lc_collate: "fr_FR.UTF-8"
+        lc_ctype: "fr_FR.UTF-8"
+        template: "template0"
+      loop: "{{ projects }}"
+        
+    - name: create database user
+      become_user: postgres
+      postgresql_user: 
+        db: "{{ item.db_name }}" 
+        name: "{{ item.db_user }}" 
+        password: "{{ item.db_password }}" 
+        priv: "ALL"
+        encrypted: yes
+      loop: "{{ projects }}"
+
+    - name: remove default nginx site
+      file: 
+        path: "/etc/nginx/sites-enabled/default"
+        state: "absent"
+
+- import_playbook: deploy.yml
+
+# vim:ft=ansible:

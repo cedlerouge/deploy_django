@@ -1,0 +1,96 @@
+---
+- hosts: localhost
+  vars_files:
+    - vars.yml
+  gather_facts: false
+  become: yes
+
+  tasks:
+    - name: Clone/pull project repo
+      git: 
+        repo: "{{ item.git_repo }}" 
+        dest: "{{ install_root }}/{{ item.name }}" 
+        accept_hostkey: "yes"
+      loop: "{{ projects }}"
+      notify:
+      - restart gunicorn
+
+    - name: install python packages
+      pip: 
+        requirements: "{{ install_root }}/{{ item.name }}/requirements.txt"
+        virtualenv: "{{ install_root }}/.virtualenv/{{ item.name }}/env"
+      loop: "{{ projects }}"
+
+    - name: copy nginx config
+      template: 
+        src: "template/nginx_site.j2" 
+        dest: "/etc/nginx/sites-enabled/{{ item.name }}.conf"
+      loop: "{{ projects }}"
+      notify:
+      - restart nginx
+
+    - name: Add SECRET_KEY
+      lineinfile:
+        path: "{{ install_root }}/{{ item.name }}/betwit/settings.py"
+        regexp: '^SECRET_KEY = .*$'
+        line: 'SECRET_KEY = "{{ item.name }}"'
+      loop: "{{ projects }}"
+
+    - name: django migrate
+      django_manage: 
+        command: "migrate"
+        app_path: "{{ install_root }}/{{ item.name }}"
+        pythonpath: "{{ install_root }}/.virtualenv/{{ item.name }}/env/bin/python"
+        virtualenv: "{{ install_root }}/.virtualenv/{{ item.name }}/env"
+      loop: "{{ projects }}"
+
+    - name: django collectstatic
+      django_manage: 
+        command: "collectstatic" 
+        app_path: "{{ install_root }}/{{ item.name }}"
+        pythonpath: "{{ install_root }}/.virtualenv/{{ item.name }}/env/bin/python"
+        virtualenv: "{{ install_root }}/.virtualenv/{{ item.name }}/env/"
+      loop: "{{ projects }}"
+
+    #- name: copy supervisor config
+    #  template: 
+    #    src: "files/supervisor.j2" 
+    #    dest: "/etc/supervisor/supervisor.conf"
+    #  notify:
+    #  - restart supervisor
+
+    - name: copy supervisor app config
+      template: 
+        src: "template/supervisorctl_app.j2"
+        dest: "/etc/supervisor/conf.d/{{ item.name }}.conf"
+      loop: "{{ projects }}"
+
+    - name: make sure nginx server is running
+      service: 
+        name: "nginx" 
+        state: "started" 
+        enabled: "yes"
+
+    - name: make sure supervisor is running
+      service: 
+        name: "supervisor" 
+        state: "started" 
+        enabled: "yes"
+
+    - name: make sure supervisor apps are started
+      supervisorctl:
+        name: "{{ item.name }}"
+        state: "started"
+      loop: "{{ projects }}"
+
+  handlers: 
+    - name: restart nginx
+      service: 
+        name: "nginx" 
+        state: "restarted"
+
+    - name: restart supervisor
+      service: 
+        name: "supervisor" 
+        state: "restarted"
+# vim:ft=ansible:

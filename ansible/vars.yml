@@ -1,0 +1,37 @@
+---
+# install_root
+install_root: "/opt"
+
+# dbpassword=$(echo "md5$(echo -n 'monsuperpass' | md5sum | awk '{print $1}')")
+projects: 
+  - name: prod
+    port: 8080
+    db_name: prod
+    db_user: produser
+    db_password: md5d76a1f36a9182863d3018c92a4e8bc3c
+    templ_sup_name: prod.j2
+    git_version: release
+    git_repo: https://github.com/cedlerouge/betwit.git
+  - name: dev
+    port: 8081
+    db_name: dev
+    db_user: devuser
+    db_password: md5d76a1f36a9182863d3018c92a4e8bc3c
+    templ_sup_name: dev.j2
+    git_version: dev
+    git_repo: https://github.com/cedlerouge/betwit.git
+
+# apt packages, you should not need to change this unless you have packages
+# listed in your requirements.txt that depend on system packages.
+system_packages:
+  - git
+  - nginx
+  - gunicorn
+  - postgresql
+  - postgresql-server-dev-all
+  - python-pip
+  - python-dev
+  - python-psycopg2
+  - virtualenv
+
+# vim:ft=ansible:
