@@ -1,5 +1,5 @@
 [program:{{ item.name}}]
-command=/opt/.virtualenvs/{{item.name}}/bin/gunicorn betwit.wsgi:application -b 0.0.0.0:{{ item.port }}
+command=/opt/.virtualenv/{{item.name}}/env/bin/gunicorn betwit.wsgi:application -b 0.0.0.0:{{ item.port }}
 stdout_logfile=/var/log/supervisor/{{ item.name }}.log
 stderr_logfile=/var/log/supervisor/{{ item.name }}.error
 autostart=true
