@@ -13,7 +13,7 @@
         accept_hostkey: "yes"
       loop: "{{ projects }}"
       notify:
-      - restart gunicorn
+      - restart supervisor
 
     - name: install python packages
       pip: 
