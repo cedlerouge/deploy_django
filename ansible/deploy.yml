@@ -18,7 +18,7 @@
     - name: install python packages
       pip: 
         requirements: "{{ install_root }}/{{ item.name }}/requirements.txt"
-        virtualenv: "{{ install_root }}/.virtualenv/{{ item.name }}/env"
+        virtualenv: "{{ install_root }}/.virtualenvs/{{ item.name }}/env"
       loop: "{{ projects }}"
 
     - name: copy nginx config
@@ -46,24 +46,24 @@
       django_manage: 
         command: "makemigrations"
         app_path: "{{ install_root }}/{{ item.name }}"
-        pythonpath: "{{ install_root }}/.virtualenv/{{ item.name }}/env/bin/python"
-        virtualenv: "{{ install_root }}/.virtualenv/{{ item.name }}/env"
+        pythonpath: "{{ install_root }}/.virtualenvs/{{ item.name }}/env/bin/python"
+        virtualenv: "{{ install_root }}/.virtualenvs/{{ item.name }}/env"
       loop: "{{ projects }}"
 
     - name: django migrate
       django_manage: 
         command: "migrate"
         app_path: "{{ install_root }}/{{ item.name }}"
-        pythonpath: "{{ install_root }}/.virtualenv/{{ item.name }}/env/bin/python"
-        virtualenv: "{{ install_root }}/.virtualenv/{{ item.name }}/env"
+        pythonpath: "{{ install_root }}/.virtualenvs/{{ item.name }}/env/bin/python"
+        virtualenv: "{{ install_root }}/.virtualenvs/{{ item.name }}/env"
       loop: "{{ projects }}"
 
     - name: django collectstatic
       django_manage: 
         command: "collectstatic" 
         app_path: "{{ install_root }}/{{ item.name }}"
-        pythonpath: "{{ install_root }}/.virtualenv/{{ item.name }}/env/bin/python"
-        virtualenv: "{{ install_root }}/.virtualenv/{{ item.name }}/env/"
+        pythonpath: "{{ install_root }}/.virtualenvs/{{ item.name }}/env/bin/python"
+        virtualenv: "{{ install_root }}/.virtualenvs/{{ item.name }}/env/"
       loop: "{{ projects }}"
 
     #- name: copy supervisor config

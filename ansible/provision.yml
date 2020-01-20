@@ -20,7 +20,7 @@
 
     - name: create isolated python environment
       shell: |
-        virtualenv {{ install_root }}/.virtualenv/{{ item.name }}/env
+        virtualenv {{ install_root }}/.virtualenvs/{{ item.name }}/env
       loop: "{{ projects }}"
 
     - name: Ensure a locale exists
