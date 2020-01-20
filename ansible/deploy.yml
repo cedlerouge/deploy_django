@@ -6,6 +6,18 @@
   become: yes
 
   tasks:
+    - name: Check if we already clone repo
+      stat :
+        path: "{{ install_root }}/{{ item.name }}"
+      loop: "{{ projects }}" 
+      register: "check_project_there"
+       
+    - name: git stash settings
+      shell: |
+        git -C {{ item.path }} --git-dir=.git --work-tree=./ stash
+      loop: "{{ check_project_there.results }}"
+      when: item.stat.exists
+
     - name: Clone/pull project repo
       git: 
         repo: "{{ item.git_repo }}" 
@@ -14,6 +26,12 @@
       loop: "{{ projects }}"
       notify:
       - restart supervisor
+
+    - name: git unstash settings
+      shell: |
+        git -C {{ item.path }} --git-dir=.git --work-tree=./ stash pop
+      loop: "{{ check_project_there.results }}"
+      when: item.stat.exists
 
     - name: install python packages
       pip: 
