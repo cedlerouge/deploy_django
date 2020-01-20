@@ -10,10 +10,12 @@
       stat :
         path: "{{ install_root }}/{{ item.name }}"
       loop: "{{ projects }}" 
-      register: "check_project_there"
+      register: check_project_there
        
     - name: git stash settings
       shell: |
+        git config --global user.email "deploy@example.com"
+        git config --global user.name "deploy"
         git -C {{ item.path }} --git-dir=.git --work-tree=./ stash
       loop: "{{ check_project_there.results }}"
       when: item.stat.exists

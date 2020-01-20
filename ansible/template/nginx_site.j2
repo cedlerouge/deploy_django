@@ -1,7 +1,7 @@
-upstream dynamic {
+upstream dynamic-{{ item.name }} {
    server 127.0.0.1:{{ item.port }};
 }
-upstream static {
+upstream static-{{ item.name }} {
    server 127.0.0.1:{{ item.port + 10 }};
 }
 
@@ -12,38 +12,39 @@ server {
   root        /opt/{{ item.name }};
   server_name {{ item.name }}-betwit.lepont.bzh;
 
-  return      301 https://$server_name$request_uri;
-
-}
-
-
-server {
-  listen 443 ssl http2;
-  #listen [::]:443 ssl http2 ipv6only=on;
-
-  server_name {{ item.name }}betwit.lepont.bzh;
-
-  # https://bjornjohansen.no/optimizing-https-nginx
-  # https://www.wjd.io/lets-encrypt-beta
-  ssl_certificate     /etc/letsencrypt/live/{{ item.name }}/fullchain.pem;
-  ssl_certificate_key /etc/letsencrypt/live/{{ item.name }}/privkey.pem;
-  ssl_ciphers "EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH";
-  ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
-  ssl_prefer_server_ciphers on;
-  ssl_session_cache shared:SSL:10m;
-  ssl_stapling on;
-  ssl_stapling_verify on;
-  ssl_dhparam /etc/ssl/private/dhparams_4096.pem;
+## wait to provide letsencrypt
+#  return      301 https://$server_name$request_uri;
+#
+#}
+#
+#
+#server {
+#  listen 443 ssl http2;
+#  #listen [::]:443 ssl http2 ipv6only=on;
+#
+#  server_name {{ item.name }}betwit.lepont.bzh;
+#
+#  # https://bjornjohansen.no/optimizing-https-nginx
+#  # https://www.wjd.io/lets-encrypt-beta
+#  ssl_certificate     /etc/letsencrypt/live/{{ item.name }}/fullchain.pem;
+#  ssl_certificate_key /etc/letsencrypt/live/{{ item.name }}/privkey.pem;
+#  ssl_ciphers "EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH";
+#  ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+#  ssl_prefer_server_ciphers on;
+#  ssl_session_cache shared:SSL:10m;
+#  ssl_stapling on;
+#  ssl_stapling_verify on;
+#  ssl_dhparam /etc/ssl/private/dhparams_4096.pem;
 
   # Root request handler to gunicorn upstream
   location / {
      #return 503;
-     proxy_pass   http://dynamic;
+     proxy_pass   http://dynamic-{{ item.name }};
   }
   # Static request handler to apache upstream
   location /static {
       alias /opt/{{ item.name }}/betwit/staticfiles/;
-      #proxy_pass http://static/static;
+      #proxy_pass http://static-{{ item,name }}/static;
       #proxy_set_header       Host $host;
       #proxy_cache            STATIC;
       #proxy_cache_valid      200  1d;
@@ -51,14 +52,14 @@ server {
   # Media request handler to apache upstream
   location /media {
       alias /opt/{{ item.name }}/media/;
-      #proxy_pass http://static/media;
+      #proxy_pass http://static-{{ item.name }}/media;
       #proxy_set_header       Host $host;
       #proxy_cache            STATIC;
       #proxy_cache_valid      200  1d;
   }
   location /photo {
       alias /opt/{{ item.name }}/media/photo/;
-      #proxy_pass http://static/media/photo;
+      #proxy_pass http://static-{{ item.name }}/media/photo;
       #proxy_set_header       Host $host;
       #proxy_cache            STATIC;
       #proxy_cache_valid      200  1d;
