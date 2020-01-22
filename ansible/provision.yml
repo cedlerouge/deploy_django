@@ -20,7 +20,7 @@
 
     - name: Check if we already isolated environment
       stat:
-        path: {{ install_root }}/.virtualenvs/{{ item.name }}
+        path: "{{ install_root }}/.virtualenvs/{{ item.name }}"
       loop: "{{ projects }}"
       register: check_virtualenv
 
