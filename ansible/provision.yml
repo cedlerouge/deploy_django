@@ -18,10 +18,17 @@
         state: "directory"
       loop: "{{ projects }}"
 
+    - Check if we already isolated environment
+      stat:
+        path: {{ install_root }}/.virtualenvs/{{ item.name }}
+      loop: "{{ projects }}"
+      register: check_virtualenv
+
     - name: create isolated python environment
       shell: |
         virtualenv {{ install_root }}/.virtualenvs/{{ item.name }}/env
       loop: "{{ projects }}"
+      when: not check_virtualenv.stat.exists
 
     - name: Ensure a locale exists
       locale_gen:
