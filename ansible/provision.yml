@@ -28,7 +28,7 @@
       shell: |
         virtualenv {{ install_root }}/.virtualenvs/{{ item.name }}/env
       loop: "{{ projects }}"
-      when: not check_virtualenv.stat.exists
+      when: check_virtualenv.stat.exists == false
 
     - name: Ensure a locale exists
       locale_gen:
