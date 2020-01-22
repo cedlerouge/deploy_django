@@ -8,7 +8,7 @@
   tasks:
     - name: Check if we already clone repo
       stat :
-        path: "{{ install_root }}/{{ item.name }}"
+        path: "{{ install_root }}/{{ item.name }}/.git"
       loop: "{{ projects }}" 
       register: check_project_there
        
