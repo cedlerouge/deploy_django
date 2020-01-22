@@ -18,7 +18,7 @@
         state: "directory"
       loop: "{{ projects }}"
 
-    - Check if we already isolated environment
+    - name: Check if we already isolated environment
       stat:
         path: {{ install_root }}/.virtualenvs/{{ item.name }}
       loop: "{{ projects }}"
