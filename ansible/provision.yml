@@ -26,9 +26,9 @@
 
     - name: create isolated python environment
       shell: |
-        virtualenv {{ install_root }}/.virtualenvs/{{ item.name }}/env
-      loop: "{{ projects }}"
-      when: check_virtualenv.stat.exists == false
+        virtualenv {{ install_root }}/.virtualenvs/{{ item.item.name }}/env
+      loop: "{{ check_virtualenv.results }}"
+      when:  item.stat.exists == false
 
     - name: Ensure a locale exists
       locale_gen:
