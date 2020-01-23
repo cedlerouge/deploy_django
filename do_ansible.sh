@@ -1,3 +1,3 @@
 #!/bin/bash
 
-ansible-playbook -l localhost ansible/provision.yml
+ansible-playbook -u ubuntu -i localhost ansible/provision.yml
