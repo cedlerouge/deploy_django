@@ -5,7 +5,7 @@ upstream static-{{ item.name }} {
    server 127.0.0.1:{{ item.port + 10 }};
 }
 
-proxy_cache_path  /var/tmp/nginx/cache-{{ item.name }} levels=1:2 keys_zone=STATIC:10m inactive=24h max_size=1g;
+proxy_cache_path  /var/tmp/nginx/cache-{{ item.name }} levels=1:2 keys_zone=STATIC-{{ item.name }}:10m inactive=24h max_size=1g;
 
 server {
   listen 80;
