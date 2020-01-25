@@ -1,0 +1,13 @@
+#cloud-config
+
+packages:
+ - git
+ - ansible
+ - supervisor
+ - sudo 
+
+runcmd:
+ - [git, clone, "https://github.com/cedlerouge/deploy_django.git", "/tmp/django_deploy/"]
+ - [chown, "-R", "ubuntu:", "/tmp/django_deploy/"]
+ - [cd, "/tmp/django_deploy/"]
+ - [sh, "/tmp/django_deploy/do_ansible.sh"]
